@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Calendar } from 'lucide-react';
+import { Menu, X, Calendar, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { name: 'Events', path: '/events' },
-    { name: 'IQAC Portal', path: '/iqac' }
+    ...(user?.role === 'iqac' || user?.role === 'admin' ? [{ name: 'IQAC Portal', path: '/iqac' }] : [])
   ];
 
   return (
@@ -36,6 +38,20 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
+            <div className="flex items-center gap-4 ml-4 pl-4 border-l border-gray-700">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-medium text-white">{user?.name}</span>
+                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full">{user?.role}</span>
+              </div>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
 
           <button

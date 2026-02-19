@@ -24,6 +24,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/event-man
 .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
 // Routes
+const { router: authRouter } = require('./routes/authRoutes');
+app.use('/api/auth', authRouter);
 app.use('/api/events', require('./routes/eventRoutes'));
 app.use('/api/iqac', require('./routes/iqacRoutes'));
 
