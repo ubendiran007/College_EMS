@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useParams, Navigate } from 'react-router-dom';
+import { Edit } from 'lucide-react';
 import EventHero from '../components/EventHero';
 import BrochureSection from '../components/BrochureSection';
 import ScheduleTimeline from '../components/ScheduleTimeline';
@@ -10,11 +12,22 @@ import ResourcePersonProfile from '../components/ResourcePersonProfile';
 import ParticipantFeedback from '../components/ParticipantFeedback';
 import GuestFeedback from '../components/GuestFeedback';
 import EventReport from '../components/EventReport';
-import { getEventById } from '../data/eventsData';
+import EditEventModal from '../components/EditEventModal';
+import { eventsData, getEventById } from '../data/eventsData';
 
 const EventPostPage = () => {
   const { id } = useParams();
-  const eventData = getEventById(id);
+  const [eventData, setEventData] = useState(getEventById(id));
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleUpdateEvent = (updatedEvent) => {
+    setEventData(updatedEvent);
+    // Update in eventsData array
+    const index = eventsData.findIndex(e => e.id === id);
+    if (index !== -1) {
+      eventsData[index] = updatedEvent;
+    }
+  };
 
   if (!eventData) {
     return <Navigate to="/events" replace />;
@@ -65,11 +78,18 @@ const EventPostPage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-gray-600 mb-12 max-w-2xl mx-auto"
+            className="text-gray-600 mb-8 max-w-2xl mx-auto"
           >
             Explore our comprehensive post-event documentation and see how we maintain
             excellence in academic and technical events.
           </motion.p>
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <Edit className="w-4 h-4" />
+            Edit Event Details
+          </button>
         </div>
       </section>
 
@@ -97,6 +117,13 @@ const EventPostPage = () => {
           </p>
         </div>
       </footer>
+
+      <EditEventModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        event={eventData}
+        onUpdate={handleUpdateEvent}
+      />
     </motion.div>
   );
 };
