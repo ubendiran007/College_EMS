@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useParams, Navigate } from 'react-router-dom';
 import EventHero from '../components/EventHero';
 import BrochureSection from '../components/BrochureSection';
 import ScheduleTimeline from '../components/ScheduleTimeline';
@@ -10,9 +10,16 @@ import ResourcePersonProfile from '../components/ResourcePersonProfile';
 import ParticipantFeedback from '../components/ParticipantFeedback';
 import GuestFeedback from '../components/GuestFeedback';
 import EventReport from '../components/EventReport';
-import { eventData } from '../data/eventData';
+import { getEventById } from '../data/eventsData';
 
 const EventPostPage = () => {
+  const { id } = useParams();
+  const eventData = getEventById(id);
+
+  if (!eventData) {
+    return <Navigate to="/events" replace />;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -83,7 +90,7 @@ const EventPostPage = () => {
       <footer className="bg-gray-900 text-white py-8">
         <div className="section-container text-center">
           <p className="text-gray-300">
-            © 2024  ubendiran College of Engineering. All rights reserved.
+            © 2024 Thiagarajar College of Engineering. All rights reserved.
           </p>
           <p className="text-gray-400 text-sm mt-2">
             Event Management System - Post Event Documentation

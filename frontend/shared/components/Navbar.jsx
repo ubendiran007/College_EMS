@@ -8,7 +8,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const navItems = [
-    { name: 'Home', path: '/' },
+    { name: 'Events', path: '/events' },
     { name: 'IQAC Portal', path: '/iqac' }
   ];
 
