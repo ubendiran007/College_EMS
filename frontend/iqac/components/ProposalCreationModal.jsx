@@ -405,12 +405,37 @@ const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
                           <Upload className="w-7 h-7 text-indigo-600" />
                           Request Letter
                         </label>
-                        <motion.div whileHover={{ scale: 1.02 }} className="border-4 border-dashed border-indigo-400 rounded-3xl p-12 text-center hover:border-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer bg-gradient-to-br from-indigo-50 to-purple-50">
+                        <motion.label whileHover={{ scale: 1.02 }} className="block border-4 border-dashed border-indigo-400 rounded-3xl p-12 text-center hover:border-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer bg-gradient-to-br from-indigo-50 to-purple-50">
                           <Upload className="w-20 h-20 text-indigo-500 mx-auto mb-5" />
-                          <p className="text-lg font-black text-gray-900 mb-2">Click to upload or drag and drop</p>
+                          <p className="text-lg font-black text-gray-900 mb-2">
+                            {formData.requestLetter ? formData.requestLetter.name : 'Click to upload or drag and drop'}
+                          </p>
                           <p className="text-sm text-gray-600 font-medium">PDF, DOC up to 10MB</p>
-                          <input type="file" className="hidden" accept=".pdf,.doc,.docx" />
-                        </motion.div>
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf,.doc,.docx" 
+                            onChange={(e) => setFormData({...formData, requestLetter: e.target.files[0]})}
+                          />
+                        </motion.label>
+                        {formData.requestLetter && (
+                          <div className="mt-4 p-4 bg-green-100 border-2 border-green-300 rounded-xl flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <CheckCircle2 className="w-6 h-6 text-green-600" />
+                              <div>
+                                <p className="font-bold text-gray-900">{formData.requestLetter.name}</p>
+                                <p className="text-sm text-gray-600">{(formData.requestLetter.size / 1024).toFixed(2)} KB</p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setFormData({...formData, requestLetter: null}); }}
+                              className="text-red-600 hover:text-red-800 font-bold"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )}
                       </motion.div>
                     </motion.div>
                   )}
@@ -557,6 +582,19 @@ const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
                         <div className="bg-white rounded-xl p-4 border-2 border-green-200 shadow">
                           <label className="text-xs font-bold text-gray-500 uppercase">Resource Persons</label>
                           <p className="text-gray-900 mt-2 text-sm leading-relaxed">{formData.resourcePersons}</p>
+                        </div>
+                      )}
+
+                      {formData.requestLetter && (
+                        <div className="bg-white rounded-xl p-4 border-2 border-indigo-200 shadow">
+                          <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Request Letter</label>
+                          <div className="flex items-center gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-green-600" />
+                            <div>
+                              <p className="font-bold text-gray-900 text-sm">{formData.requestLetter.name}</p>
+                              <p className="text-xs text-gray-600">{(formData.requestLetter.size / 1024).toFixed(2)} KB</p>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </motion.div>
