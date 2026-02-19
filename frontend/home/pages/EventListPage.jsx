@@ -1,9 +1,17 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, CheckCircle, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, CheckCircle, ArrowRight, Plus } from 'lucide-react';
 import { eventsData } from '../data/eventsData';
+import AddEventModal from '../components/AddEventModal';
 
 const EventListPage = () => {
+  const [events, setEvents] = useState(eventsData);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddEvent = (newEvent) => {
+    setEvents([newEvent, ...events]);
+  };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -21,13 +29,20 @@ const EventListPage = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Completed Events
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
             Explore comprehensive documentation of our successfully conducted events
           </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Event
+          </button>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {eventsData.map((eventItem, index) => (
+          {events.map((eventItem, index) => (
             <motion.div
               key={eventItem.id}
               initial={{ opacity: 0, y: 20 }}
@@ -93,6 +108,12 @@ const EventListPage = () => {
           ))}
         </div>
       </div>
+
+      <AddEventModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={handleAddEvent}
+      />
     </motion.div>
   );
 };
