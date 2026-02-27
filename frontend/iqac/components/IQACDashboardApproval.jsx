@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Users, CheckCircle, Clock, XCircle, FileText } from 'lucide-react';
+import { Calendar, Users, CheckCircle, Clock, XCircle, FileText, TrendingUp, Award, Sparkles, Eye } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { iqacAPI } from '../../shared/services/api';
 import { useAuth } from '../../shared/context/AuthContext';
 import ProposalCreationModal from '../components/ProposalCreationModal';
@@ -104,69 +105,139 @@ const IQACDashboardApproval = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pt-20 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">IQAC Dashboard</h1>
+        {/* Header with gradient */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-between items-center mb-8"
+        >
+          <div>
+            <h1 className="text-4xl font-black text-gray-900 mb-2 flex items-center gap-3">
+              <Sparkles className="w-10 h-10 text-accent" />
+              IQAC Dashboard
+            </h1>
+            <p className="text-gray-600 font-medium">
+              {user.role === 'faculty' ? 'Create and track your event proposals' : 
+               user.role === 'hod' ? 'Review and approve department proposals' :
+               'Final approval and event management'}
+            </p>
+          </div>
           {canCreate && (
-            <button
-              onClick={() => {
-                console.log('Button clicked');
-                setShowCreateModal(true);
-                console.log('showCreateModal set to true');
-              }}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowCreateModal(true)}
+              className="px-8 py-4 bg-gradient-to-r from-accent to-red-600 text-white rounded-xl hover:shadow-2xl hover:shadow-accent/50 font-bold text-lg transition-all duration-300 flex items-center gap-2"
             >
-              + Create New Proposal
-            </button>
+              <Sparkles className="w-5 h-5" />
+              Create New Proposal
+            </motion.button>
           )}
+        </motion.div>
+
+        {/* Stats Cards with animations */}
+        <div className="grid grid-cols-4 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-2xl border-2 border-blue-200 shadow-lg hover:shadow-2xl transition-all duration-300"
+          >
+            <FileText className="w-10 h-10 text-accent mb-3" />
+            <p className="text-4xl font-black text-gray-900">{stats.total}</p>
+            <p className="text-sm font-semibold text-gray-600 mt-1">Total Proposals</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            className="bg-gradient-to-br from-white to-yellow-50 p-6 rounded-2xl border-2 border-yellow-200 shadow-lg hover:shadow-2xl transition-all duration-300"
+          >
+            <Clock className="w-10 h-10 text-yellow-600 mb-3" />
+            <p className="text-4xl font-black text-gray-900">{stats.pending}</p>
+            <p className="text-sm font-semibold text-gray-600 mt-1">Pending Approval</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            className="bg-gradient-to-br from-white to-green-50 p-6 rounded-2xl border-2 border-green-200 shadow-lg hover:shadow-2xl transition-all duration-300"
+          >
+            <CheckCircle className="w-10 h-10 text-green-600 mb-3" />
+            <p className="text-4xl font-black text-gray-900">{stats.approved}</p>
+            <p className="text-sm font-semibold text-gray-600 mt-1">Approved</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            className="bg-gradient-to-br from-white to-purple-50 p-6 rounded-2xl border-2 border-purple-200 shadow-lg hover:shadow-2xl transition-all duration-300"
+          >
+            <Award className="w-10 h-10 text-purple-600 mb-3" />
+            <p className="text-4xl font-black text-gray-900">{stats.completed}</p>
+            <p className="text-sm font-semibold text-gray-600 mt-1">Completed</p>
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg border">
-            <FileText className="w-8 h-8 text-accent mb-2" />
-            <p className="text-2xl font-bold">{stats.total}</p>
-            <p className="text-sm text-gray-600">Total Proposals</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <Clock className="w-8 h-8 text-yellow-600 mb-2" />
-            <p className="text-2xl font-bold">{stats.pending}</p>
-            <p className="text-sm text-gray-600">Pending Approval</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <CheckCircle className="w-8 h-8 text-green-600 mb-2" />
-            <p className="text-2xl font-bold">{stats.approved}</p>
-            <p className="text-sm text-gray-600">Approved</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <Users className="w-8 h-8 text-blue-600 mb-2" />
-            <p className="text-2xl font-bold">{stats.completed}</p>
-            <p className="text-sm text-gray-600">Completed</p>
-          </div>
-        </div>
-
-        <div className="flex gap-2 mb-6">
-          {['all', 'pending', 'approved', 'completed'].map(f => (
-            <button
+        {/* Filter Buttons */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex gap-3 mb-8"
+        >
+          {['all', 'pending', 'approved', 'completed'].map((f, i) => (
+            <motion.button
               key={f}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg ${filter === f ? 'bg-accent text-white' : 'bg-white border'}`}
+              className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 ${
+                filter === f
+                  ? 'bg-gradient-to-r from-accent to-red-600 text-white shadow-lg shadow-accent/30'
+                  : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-accent'
+              }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="space-y-4">
-          {filteredProposals.map(proposal => (
-            <div key={proposal._id} className="bg-white p-6 rounded-lg border hover:shadow-md transition">
+        {/* Proposals List */}
+        <div className="space-y-6">
+          <AnimatePresence>
+            {filteredProposals.map((proposal, index) => (
+              <motion.div
+                key={proposal._id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ scale: 1.02, y: -5 }}
+                className="bg-white p-8 rounded-2xl border-2 border-gray-200 hover:border-accent hover:shadow-2xl transition-all duration-300"
+              >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-2">{proposal.eventTitle}</h3>
-                  <div className="flex gap-4 text-sm text-gray-600 mb-3">
-                    <span>📅 {new Date(proposal.eventDate).toLocaleDateString()}</span>
-                    <span>🏢 {proposal.department}</span>
-                    <span>📍 {proposal.venue}</span>
+                  <h3 className="text-2xl font-black text-gray-900 mb-3">{proposal.eventTitle}</h3>
+                  <div className="flex gap-6 text-sm text-gray-600 mb-4">
+                    <span className="flex items-center gap-2 font-medium">
+                      <Calendar className="w-4 h-4 text-accent" />
+                      {new Date(proposal.eventDate).toLocaleDateString()}
+                    </span>
+                    <span className="flex items-center gap-2 font-medium">
+                      <Users className="w-4 h-4 text-accent" />
+                      {proposal.department}
+                    </span>
+                    <span className="flex items-center gap-2 font-medium">
+                      <TrendingUp className="w-4 h-4 text-accent" />
+                      {proposal.venue}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(proposal.status)}`}>
@@ -179,28 +250,35 @@ const IQACDashboardApproval = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
+                <div className="flex gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => { setSelectedProposal(proposal); setShowDetailsModal(true); }}
-                    className="px-4 py-2 border border-accent text-accent rounded-lg hover:bg-accent-light"
+                    className="px-6 py-3 border-2 border-accent text-accent rounded-xl hover:bg-accent hover:text-white font-bold transition-all duration-300 flex items-center gap-2"
                   >
+                    <Eye className="w-4 h-4" />
                     View Details
-                  </button>
+                  </motion.button>
                   {proposal.status === 'Principal_Approved' && (user.role === 'hod' || user.role === 'principal') && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => { setSelectedProposal(proposal); setShowDocModal(true); }}
-                      className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover"
+                      className="px-6 py-3 bg-gradient-to-r from-accent to-red-600 text-white rounded-xl hover:shadow-xl font-bold transition-all duration-300"
                     >
                       Add Documentation
-                    </button>
+                    </motion.button>
                   )}
                   {(user.role === 'hod' || user.role === 'principal') && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setDeleteConfirm(proposal)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 hover:shadow-xl font-bold transition-all duration-300"
                     >
                       Delete
-                    </button>
+                    </motion.button>
                   )}
                 </div>
               </div>
@@ -220,8 +298,9 @@ const IQACDashboardApproval = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
+          </AnimatePresence>
         </div>
       </div>
 
