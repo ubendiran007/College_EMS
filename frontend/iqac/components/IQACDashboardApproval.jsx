@@ -282,7 +282,7 @@ const IQACDashboardApproval = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setSelectedProposal(proposal); setShowDetailsModal(true); }}
-                    className="px-6 py-3 bg-white border-2 border-accent text-accent rounded-xl hover:bg-accent hover:text-white font-bold transition-all duration-300 flex items-center gap-2 shadow-md"
+                    className="px-6 py-3 bg-white border-2 border-accent text-accent rounded-xl hover:bg-accent hover:text-white font-bold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
                   >
                     <Eye className="w-4 h-4" />
                     View Details
@@ -292,7 +292,7 @@ const IQACDashboardApproval = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => { setSelectedProposal(proposal); setShowDocModal(true); }}
-                      className="px-6 py-3 bg-gradient-to-r from-accent to-red-600 text-white rounded-xl hover:shadow-xl font-bold transition-all duration-300 shadow-md"
+                      className="px-6 py-3 bg-gradient-to-r from-accent to-red-600 text-white rounded-xl hover:from-red-700 hover:to-red-800 font-bold transition-all duration-300 shadow-lg hover:shadow-2xl"
                     >
                       Add Documentation
                     </motion.button>
@@ -302,7 +302,7 @@ const IQACDashboardApproval = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setDeleteConfirm(proposal)}
-                      className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 hover:shadow-xl font-bold transition-all duration-300 shadow-md"
+                      className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-800 font-bold transition-all duration-300 shadow-lg hover:shadow-2xl"
                     >
                       Delete
                     </motion.button>
