@@ -11,7 +11,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Events', path: '/events' },
-    ...(user?.role === 'hod' || user?.role === 'principal' ? [{ name: 'IQAC Portal', path: '/iqac' }] : [])
+    { name: 'IQAC Portal', path: '/iqac' }
   ];
 
   return (

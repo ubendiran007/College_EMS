@@ -42,8 +42,7 @@ const IQACDashboardApproval = () => {
   const handleApproval = async (proposalId, action, comments) => {
     try {
       const statusMap = {
-        faculty: action === 'approve' ? 'Faculty_Approved' : 'Rejected',
-        hod: action === 'approve' ? 'HOD_Approved' : 'Rejected',
+        hod: action === 'approve' ? 'Faculty_Approved' : 'Rejected',
         principal: action === 'approve' ? 'Principal_Approved' : 'Rejected'
       };
 
@@ -76,13 +75,20 @@ const IQACDashboardApproval = () => {
   };
 
   const canApprove = (proposal) => {
-    if (proposal.status === 'Pending' && user.role === 'faculty') return true;
-    if (proposal.status === 'Faculty_Approved' && user.role === 'hod') return true;
-    if (proposal.status === 'HOD_Approved' && user.role === 'principal') return true;
+    if (proposal.status === 'Pending' && user.role === 'hod') return true;
+    if (proposal.status === 'Faculty_Approved' && user.role === 'principal') return true;
     return false;
   };
 
+  const canCreate = user.role === 'faculty';
+  const canViewAll = user.role === 'hod' || user.role === 'principal';
+  const isCreator = (proposal) => proposal.createdBy === user.email || proposal.createdBy === user.name;
+
   const filteredProposals = proposals.filter(p => {
+    // Faculty can only see their own proposals
+    if (user.role === 'faculty' && !isCreator(p)) return false;
+    
+    // Apply status filters
     if (filter === 'all') return true;
     if (filter === 'pending') return canApprove(p);
     if (filter === 'approved') return p.status === 'Principal_Approved';
@@ -102,16 +108,18 @@ const IQACDashboardApproval = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">IQAC Dashboard</h1>
-          <button
-            onClick={() => {
-              console.log('Button clicked');
-              setShowCreateModal(true);
-              console.log('showCreateModal set to true');
-            }}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
-          >
-            + Create New Proposal
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => {
+                console.log('Button clicked');
+                setShowCreateModal(true);
+                console.log('showCreateModal set to true');
+              }}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
+            >
+              + Create New Proposal
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-4 gap-4 mb-6">
@@ -178,7 +186,7 @@ const IQACDashboardApproval = () => {
                   >
                     View Details
                   </button>
-                  {proposal.status === 'Principal_Approved' && (
+                  {proposal.status === 'Principal_Approved' && (user.role === 'hod' || user.role === 'principal') && (
                     <button
                       onClick={() => { setSelectedProposal(proposal); setShowDocModal(true); }}
                       className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover"
@@ -186,12 +194,14 @@ const IQACDashboardApproval = () => {
                       Add Documentation
                     </button>
                   )}
-                  <button
-                    onClick={() => setDeleteConfirm(proposal)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
+                  {(user.role === 'hod' || user.role === 'principal') && (
+                    <button
+                      onClick={() => setDeleteConfirm(proposal)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -236,7 +246,9 @@ const IQACDashboardApproval = () => {
                   guestAccommodation: proposalData.guestAccommodation,
                   itSupport: proposalData.itSupport,
                   audioVideoSupport: proposalData.audioVideoSupport
-                }
+                },
+                createdBy: user.email,
+                createdByName: user.name
               };
               await iqacAPI.createProposal(proposal);
               fetchProposals();
