@@ -1,7 +1,7 @@
-import IQACDashboard from '../components/IQACDashboard';
+import IQACDashboardApproval from '../components/IQACDashboardApproval';
 
 const IQACPage = () => {
-  return <IQACDashboard />;
+  return <IQACDashboardApproval />;
 };
 
 export default IQACPage;

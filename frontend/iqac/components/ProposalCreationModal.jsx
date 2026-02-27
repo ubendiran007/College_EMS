@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { X, Upload, Calendar, Users, MapPin, FileText, Image, Coffee, Plane, Hotel, Wifi, Mic, CheckCircle2, Info, Sparkles, AlertCircle } from 'lucide-react';
 
-const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
+const ProposalCreationModal = ({ onClose, onSubmit }) => {
   const [step, setStep] = useState(1);
   const formScrollRef = useRef(null);
   const [validationErrors, setValidationErrors] = useState({});
@@ -25,7 +25,11 @@ const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
     { num: 5, title: 'Review', icon: CheckCircle2, desc: 'Confirm details', color: 'from-indigo-500 to-purple-500' }
   ];
 
-  const handleSubmit = (e) => { e.preventDefault(); e.stopPropagation(); onSubmit(formData); onClose(); };
+  const handleSubmit = (e) => { 
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    onSubmit(formData); 
+  };
   
   const validateStep = () => {
     const errors = {};
@@ -73,15 +77,14 @@ const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   useEffect(() => {
-    if (isOpen && formScrollRef.current) {
+    if (formScrollRef.current) {
       formScrollRef.current.scrollTop = 0;
     }
-  }, [isOpen, step]);
+  }, [step]);
 
   return (
     <AnimatePresence>
-      {isOpen && (
-        <>
+      <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
 
           <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -611,7 +614,7 @@ const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
                         Next →
                       </motion.button>
                     ) : (
-                      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" onClick={(e) => e.stopPropagation()} className="ml-auto px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg">
+                      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className="ml-auto px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg">
                         ✓ Submit Proposal
                       </motion.button>
                     )}
@@ -622,8 +625,7 @@ const ProposalCreationModal = ({ isOpen, onClose, onSubmit }) => {
           </motion.div>
         </div>
       </div>
-        </>
-      )}
+      </>
     </AnimatePresence>
   );
 };

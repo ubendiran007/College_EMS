@@ -11,7 +11,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Events', path: '/events' },
-    ...(user?.role === 'iqac' || user?.role === 'admin' ? [{ name: 'IQAC Portal', path: '/iqac' }] : [])
+    ...(user?.role === 'hod' || user?.role === 'principal' ? [{ name: 'IQAC Portal', path: '/iqac' }] : [])
   ];
 
   return (
@@ -42,7 +42,7 @@ const Navbar = () => {
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-gray-400" />
                 <span className="text-sm font-medium text-white">{user?.name}</span>
-                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full">{user?.role}</span>
+                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full capitalize">{user?.role}</span>
               </div>
               <button
                 onClick={logout}

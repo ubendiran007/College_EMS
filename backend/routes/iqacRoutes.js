@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const IQACProposal = require('../models/IQACProposal');
 const Event = require('../models/Event');
+const { sendApprovalEmail, sendStatusUpdateEmail } = require('../services/emailService');
 
 // GET all proposals
 router.get('/proposals', async (req, res) => {
@@ -31,6 +32,10 @@ router.post('/proposals', async (req, res) => {
   try {
     const proposal = new IQACProposal(req.body);
     await proposal.save();
+    
+    // Send email to faculty
+    await sendApprovalEmail('faculty', proposal);
+    
     res.status(201).json(proposal);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -40,7 +45,7 @@ router.post('/proposals', async (req, res) => {
 // PUT update proposal status
 router.put('/proposals/:id/status', async (req, res) => {
   try {
-    const { status, approver, comments } = req.body;
+    const { status, approver, approverRole, comments, creatorEmail } = req.body;
     
     const proposal = await IQACProposal.findOne({ proposalId: req.params.id });
     if (!proposal) {
@@ -48,15 +53,27 @@ router.put('/proposals/:id/status', async (req, res) => {
     }
     
     proposal.status = status;
-    proposal.approvalHistory.push({
-      approver,
-      action: status,
-      comments,
-      date: new Date()
-    });
-    proposal.updatedAt = Date.now();
+    proposal.approvalHistory.push({ approver, approverRole, action: status, comments, date: new Date() });
     
+    // Send email to next approver
+    if (status === 'Faculty_Approved') {
+      proposal.currentApprover = 'hod';
+      await sendApprovalEmail('hod', proposal);
+    } else if (status === 'HOD_Approved') {
+      proposal.currentApprover = 'principal';
+      await sendApprovalEmail('principal', proposal);
+    } else if (status === 'Principal_Approved') {
+      proposal.currentApprover = 'completed';
+    }
+    
+    proposal.updatedAt = Date.now();
     await proposal.save();
+    
+    // Notify creator if provided
+    if (creatorEmail) {
+      await sendStatusUpdateEmail(creatorEmail, proposal, status, comments);
+    }
+    
     res.json(proposal);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -71,8 +88,8 @@ router.post('/proposals/:id/complete', async (req, res) => {
       return res.status(404).json({ error: 'Proposal not found' });
     }
     
-    if (proposal.status !== 'Approved') {
-      return res.status(400).json({ error: 'Only approved proposals can be marked as completed' });
+    if (proposal.status !== 'Principal_Approved') {
+      return res.status(400).json({ error: 'Only principal approved proposals can be marked as completed' });
     }
     
     // Generate event ID

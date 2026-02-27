@@ -26,7 +26,7 @@ function App() {
                   <Route path="/events" element={<EventListPage />} />
                   <Route path="/event/:id" element={<EventPostPage />} />
                   <Route path="/iqac" element={
-                    <ProtectedRoute roles={['iqac', 'admin']}>
+                    <ProtectedRoute roles={['hod', 'principal']}>
                       <IQACPage />
                     </ProtectedRoute>
                   } />

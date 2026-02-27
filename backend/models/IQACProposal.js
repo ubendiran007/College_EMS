@@ -45,11 +45,17 @@ const iqacProposalSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Approved', 'Rejected', 'Completed'],
+    enum: ['Pending', 'Faculty_Approved', 'HOD_Approved', 'Principal_Approved', 'Rejected', 'Completed'],
     default: 'Pending'
+  },
+  currentApprover: {
+    type: String,
+    enum: ['faculty', 'hod', 'principal', 'completed'],
+    default: 'faculty'
   },
   approvalHistory: [{
     approver: String,
+    approverRole: String,
     action: String,
     comments: String,
     date: { type: Date, default: Date.now }

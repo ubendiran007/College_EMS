@@ -1,11 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, CheckCircle, ArrowRight } from 'lucide-react';
-import { eventsData } from '../data/eventsData';
+import { eventAPI } from '../../shared/services/api';
 
 const EventListPage = () => {
-  const [events, setEvents] = useState(eventsData);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const data = await eventAPI.getAllEvents();
+      setEvents(data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 flex items-center justify-center">
+        <p className="text-gray-600">Loading events...</p>
+      </div>
+    );
+  }
   return (
     <motion.div
       initial={{ opacity: 0 }}

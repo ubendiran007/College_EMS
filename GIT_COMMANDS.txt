@@ -1,0 +1,43 @@
+# Git Preparation Commands
+
+# STEP 1: Remove .env from Git tracking (if already committed)
+git rm --cached backend/.env
+
+# STEP 2: Verify .gitignore is updated
+git diff .gitignore
+
+# STEP 3: Install new dependencies
+cd backend
+npm install nodemailer
+cd ..
+
+# STEP 4: Stage changes
+git add .gitignore
+git add backend/.env.example
+git add backend/models/
+git add backend/routes/
+git add backend/services/
+git add backend/package.json
+git add backend/server.js
+git add frontend/iqac/components/
+git add SETUP_GUIDE.md
+git add CHANGELOG.md
+
+# STEP 5: Commit changes
+git commit -m "feat: implement multi-level approval workflow with email notifications
+
+- Add student, hod, principal roles
+- Implement approval chain: Faculty -> HOD -> Principal
+- Add email notifications at each approval stage
+- Create approval tracking dashboard
+- Add post-event documentation workflow
+- Update security: remove .env from tracking
+- Add comprehensive setup documentation"
+
+# STEP 6: Push to development branch
+git push origin development
+
+# STEP 7: (Optional) Merge to main when ready
+# git checkout main
+# git merge development
+# git push origin main

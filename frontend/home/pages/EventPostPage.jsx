@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useParams, Navigate } from 'react-router-dom';
-import { Edit } from 'lucide-react';
+import { useParams, Navigate } from 'react-router-dom';
 import EventHero from '../components/EventHero';
 import BrochureSection from '../components/BrochureSection';
 import ScheduleTimeline from '../components/ScheduleTimeline';
@@ -12,22 +11,35 @@ import ResourcePersonProfile from '../components/ResourcePersonProfile';
 import ParticipantFeedback from '../components/ParticipantFeedback';
 import GuestFeedback from '../components/GuestFeedback';
 import EventReport from '../components/EventReport';
-import EditEventModal from '../components/EditEventModal';
-import { eventsData, getEventById } from '../data/eventsData';
+import { eventAPI } from '../../shared/services/api';
 
 const EventPostPage = () => {
   const { id } = useParams();
-  const [eventData, setEventData] = useState(getEventById(id));
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleUpdateEvent = (updatedEvent) => {
-    setEventData(updatedEvent);
-    // Update in eventsData array
-    const index = eventsData.findIndex(e => e.id === id);
-    if (index !== -1) {
-      eventsData[index] = updatedEvent;
+  useEffect(() => {
+    fetchEvent();
+  }, [id]);
+
+  const fetchEvent = async () => {
+    try {
+      const data = await eventAPI.getEventById(id);
+      setEventData(data);
+    } catch (error) {
+      console.error('Error fetching event:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 flex items-center justify-center">
+        <p className="text-gray-600">Loading event...</p>
+      </div>
+    );
+  }
 
   if (!eventData) {
     return <Navigate to="/events" replace />;
@@ -71,7 +83,7 @@ const EventPostPage = () => {
             viewport={{ once: true }}
             className="text-3xl font-bold text-gray-900 mb-8"
           >
-            Recent Event Showcase
+            Event Documentation
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -80,16 +92,8 @@ const EventPostPage = () => {
             transition={{ delay: 0.2 }}
             className="text-gray-600 mb-8 max-w-2xl mx-auto"
           >
-            Explore our comprehensive post-event documentation and see how we maintain
-            excellence in academic and technical events.
+            Comprehensive post-event documentation showcasing excellence in academic and technical events.
           </motion.p>
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            <Edit className="w-4 h-4" />
-            Edit Event Details
-          </button>
         </div>
       </section>
 
@@ -117,13 +121,6 @@ const EventPostPage = () => {
           </p>
         </div>
       </footer>
-
-      <EditEventModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        event={eventData}
-        onUpdate={handleUpdateEvent}
-      />
     </motion.div>
   );
 };
