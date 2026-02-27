@@ -54,10 +54,12 @@ const IQACDashboardApproval = () => {
         comments
       });
 
-      fetchProposals();
       setShowDetailsModal(false);
+      await fetchProposals();
+      alert(`Proposal ${action === 'approve' ? 'approved' : 'rejected'} successfully!`);
     } catch (error) {
       console.error('Error updating proposal:', error);
+      alert('Failed to update proposal status');
     }
   };
 
