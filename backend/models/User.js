@@ -21,12 +21,12 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['faculty', 'hod', 'principal'],
-    default: 'faculty'
+    enum: ['student', 'faculty', 'hod', 'principal'],
+    default: 'student'
   },
   department: {
     type: String,
-    required: function() { return this.role === 'faculty'; }
+    required: function() { return this.role === 'student' || this.role === 'faculty'; }
   },
   isActive: {
     type: Boolean,

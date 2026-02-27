@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     isAuthenticated: !!user,
+    isStudent: user?.role === 'student',
     isFaculty: user?.role === 'faculty',
     isHOD: user?.role === 'hod',
     isPrincipal: user?.role === 'principal'

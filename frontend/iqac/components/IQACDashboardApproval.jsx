@@ -42,13 +42,17 @@ const IQACDashboardApproval = () => {
 
   const handleApproval = async (proposalId, action, comments) => {
     try {
-      const statusMap = {
-        hod: action === 'approve' ? 'Faculty_Approved' : 'Rejected',
-        principal: action === 'approve' ? 'Principal_Approved' : 'Rejected'
-      };
+      let newStatus;
+      if (user.role === 'faculty') {
+        newStatus = action === 'approve' ? 'Faculty_Approved' : 'Rejected';
+      } else if (user.role === 'hod') {
+        newStatus = action === 'approve' ? 'HOD_Approved' : 'Rejected';
+      } else if (user.role === 'principal') {
+        newStatus = action === 'approve' ? 'Principal_Approved' : 'Rejected';
+      }
 
       await iqacAPI.updateProposalStatus(proposalId, {
-        status: statusMap[user.role],
+        status: newStatus,
         approver: user.name,
         approverRole: user.role,
         comments
@@ -76,18 +80,28 @@ const IQACDashboardApproval = () => {
   };
 
   const canApprove = (proposal) => {
-    if (proposal.status === 'Pending' && user.role === 'hod') return true;
-    if (proposal.status === 'Faculty_Approved' && user.role === 'principal') return true;
+    // If created by student, faculty can approve when status is Pending
+    if (proposal.createdByRole === 'student' && proposal.status === 'Pending' && user.role === 'faculty') return true;
+    // If created by faculty, skip faculty approval - HOD approves when Pending
+    if (proposal.createdByRole === 'faculty' && proposal.status === 'Pending' && user.role === 'hod') return true;
+    // HOD approves after faculty approval
+    if (proposal.status === 'Faculty_Approved' && user.role === 'hod') return true;
+    // Principal approves after HOD approval
+    if (proposal.status === 'HOD_Approved' && user.role === 'principal') return true;
     return false;
   };
 
-  const canCreate = user.role === 'faculty';
-  const canViewAll = user.role === 'hod' || user.role === 'principal';
+  const hasUserApproved = (proposal) => {
+    return proposal.approvalHistory?.some(h => h.approverRole === user.role);
+  };
+
+  const canCreate = user.role === 'student' || user.role === 'faculty';
+  const canViewAll = user.role === 'faculty' || user.role === 'hod' || user.role === 'principal';
   const isCreator = (proposal) => proposal.createdBy === user.email || proposal.createdBy === user.name;
 
   const filteredProposals = proposals.filter(p => {
-    // Faculty can only see their own proposals
-    if (user.role === 'faculty' && !isCreator(p)) return false;
+    // Students and Faculty can only see their own proposals
+    if ((user.role === 'student' || user.role === 'faculty') && !isCreator(p)) return false;
     
     // Apply status filters
     if (filter === 'all') return true;
@@ -97,11 +111,17 @@ const IQACDashboardApproval = () => {
     return true;
   });
 
+  // Calculate stats based on what user can see
+  const visibleProposals = proposals.filter(p => {
+    if ((user.role === 'student' || user.role === 'faculty') && !isCreator(p)) return false;
+    return true;
+  });
+
   const stats = {
-    total: proposals.length,
-    pending: proposals.filter(p => ['Pending', 'Faculty_Approved', 'HOD_Approved'].includes(p.status)).length,
-    approved: proposals.filter(p => p.status === 'Principal_Approved').length,
-    completed: proposals.filter(p => p.status === 'Completed').length
+    total: visibleProposals.length,
+    pending: visibleProposals.filter(p => ['Pending', 'Faculty_Approved', 'HOD_Approved'].includes(p.status)).length,
+    approved: visibleProposals.filter(p => p.status === 'Principal_Approved').length,
+    completed: visibleProposals.filter(p => p.status === 'Completed').length
   };
 
   return (
@@ -119,7 +139,8 @@ const IQACDashboardApproval = () => {
               IQAC Dashboard
             </h1>
             <p className="text-gray-600 font-medium">
-              {user.role === 'faculty' ? 'Create and track your event proposals' : 
+              {user.role === 'student' ? 'Create and track your event proposals' :
+               user.role === 'faculty' ? 'Create proposals and approve student requests' : 
                user.role === 'hod' ? 'Review and approve department proposals' :
                'Final approval and event management'}
             </p>
@@ -243,6 +264,12 @@ const IQACDashboardApproval = () => {
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(proposal.status)}`}>
                       {proposal.status.replace('_', ' ')}
                     </span>
+                    {hasUserApproved(proposal) && (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border-2 border-green-300 flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" />
+                        You Approved
+                      </span>
+                    )}
                     {proposal.currentApprover && proposal.status !== 'Completed' && (
                       <span className="text-xs text-gray-500">
                         Awaiting: {proposal.currentApprover.toUpperCase()}
@@ -327,7 +354,8 @@ const IQACDashboardApproval = () => {
                   audioVideoSupport: proposalData.audioVideoSupport
                 },
                 createdBy: user.email,
-                createdByName: user.name
+                createdByName: user.name,
+                createdByRole: user.role
               };
               await iqacAPI.createProposal(proposal);
               fetchProposals();

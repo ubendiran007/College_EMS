@@ -12,6 +12,13 @@ const seedUsers = async () => {
 
     const users = [
       {
+        name: 'Student User',
+        email: 'student@college.edu',
+        password: 'student123',
+        role: 'student',
+        department: 'Computer Science'
+      },
+      {
         name: 'Faculty User',
         email: 'ubendiran2007@gmail.com',
         password: 'faculty123',

@@ -69,6 +69,10 @@ const iqacProposalSchema = new mongoose.Schema({
     required: true
   },
   createdByName: String,
+  createdByRole: {
+    type: String,
+    enum: ['student', 'faculty', 'hod', 'principal']
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
